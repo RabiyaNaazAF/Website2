@@ -1,0 +1,3 @@
+- [x] Add mid payment input field after advance in Billing.tsx
+- [x] Add mid payment line in bill preview after advance
+- [x] Update calculateTotal function to include mid payment
