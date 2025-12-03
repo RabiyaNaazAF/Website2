@@ -1,3 +1,6 @@
-- [x] Add mid payment input field after advance in Billing.tsx
-- [x] Add mid payment line in bill preview after advance
-- [x] Update calculateTotal function to include mid payment
+# Remove Login and Signup Task
+
+- [x] Delete Auth.tsx file
+- [x] Remove /auth, /dashboard, /billing routes from App.tsx
+- [x] Simplify Navbar.tsx by removing auth-related code
+- [ ] Update Home.tsx to remove login message

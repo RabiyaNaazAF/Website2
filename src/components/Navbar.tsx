@@ -1,17 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, User } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<SupabaseUser | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -21,30 +16,6 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Failed to logout");
-    } else {
-      toast.success("Logged out successfully");
-      navigate("/");
-    }
-  };
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -83,33 +54,6 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            {user ? (
-              <>
-                <Button variant="ghost" size="sm" className="gap-2" asChild>
-                  <Link to="/billing">
-                    <User className="h-4 w-4" />
-                    {user.email?.split('@')[0]}
-                  </Link>
-                </Button>
-                <Button
-                  onClick={handleLogout}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => navigate("/auth")}
-                variant="outline"
-                size="sm"
-              >
-                Login
-              </Button>
-            )}
             <Button variant="default" size="sm" asChild>
               <Link to="/contact">Enquire Now</Link>
             </Button>
@@ -148,38 +92,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              {user ? (
-                <>
-                  <div className="flex items-center gap-2 px-2 py-2 text-sm text-muted-foreground">
-                    <User className="h-4 w-4" />
-                    {user.email}
-                  </div>
-                  <Button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={() => {
-                    navigate("/auth");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  Login
-                </Button>
-              )}
               <Button variant="default" size="sm" className="w-full" asChild>
                 <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>
                   Enquire Now

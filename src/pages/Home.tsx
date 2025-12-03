@@ -1,9 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { X } from "lucide-react";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Home as HomeIcon, MapIcon, Ruler } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -15,13 +12,8 @@ import VideoShowcase from "@/components/VideoShowcase";
 import ParallaxSection from "@/components/ParallaxSection";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import heroImage from "@/assets/hero-architecture.jpg";
-import { useRef } from "react";
 
 const Home = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState<SupabaseUser | null>(null);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -30,28 +22,6 @@ const Home = () => {
 
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0]);
-
-  useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        setShowLoginPrompt(true);
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        setShowLoginPrompt(true);
-      } else {
-        setShowLoginPrompt(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const { ref: servicesRef, inView: servicesInView } = useInView({
     threshold: 0.2,
@@ -87,36 +57,6 @@ const Home = () => {
 
   return (
     <div>
-      {/* Login Prompt Modal */}
-      {showLoginPrompt && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-        >
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-background rounded-lg p-6 max-w-md w-full shadow-2xl border"
-          >
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-semibold">Welcome to AJ Groups</h3>
-            </div>
-            <p className="text-muted-foreground mb-6">
-              Please login to access our services and explore our projects.
-            </p>
-            <Button
-              onClick={() => navigate("/auth")}
-              className="w-full"
-            >
-              Login
-            </Button>
-          </motion.div>
-        </motion.div>
-      )}
-
       {/* Hero Section with Parallax */}
       <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
         <motion.div
